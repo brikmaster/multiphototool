@@ -190,18 +190,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    // Import error tracking if available
-    try {
-      const { captureError } = await import('../../../lib/error-tracking');
-      captureError(error as Error, {
-        operation: 'upload',
-        endpoint: '/api/cloudinary-upload',
-      });
-    } catch (importError) {
-      // Fallback to console logging if error tracking not available
-      console.error('Upload error:', error);
-    }
-    
+    console.error('Upload error:', error);
     return NextResponse.json(
       { error: 'Upload failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
