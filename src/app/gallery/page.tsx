@@ -242,18 +242,22 @@ function GalleryPageContent() {
     }
   }, [shareUrl, userId, gameNumber]);
 
-  // Generate Open Graph image URL using Cloudinary
+  // Generate Open Graph image URL using Cloudinary with actual photos
   const generateOGImageUrl = useCallback(() => {
-    if (!userId || !gameNumber) return '';
+    if (!userId || !gameNumber || photos.length === 0) {
+      // Return API URL for dynamic generation
+      return `/api/og-image?type=gallery&userId=${encodeURIComponent(userId || '')}&gameNumber=${encodeURIComponent(gameNumber || '')}`;
+    }
     
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const baseUrl = `https://res.cloudinary.com/${cloudName}/image/upload`;
+    // Use the first 4 photos for the collage
+    const photosForOG = photos.slice(0, 4).map(photo => ({
+      public_id: photo.publicId,
+      secure_url: photo.secureUrl,
+    }));
     
-    // Create a dynamic OG image with user and game info
-    const ogImageUrl = `${baseUrl}/w_1200,h_630,c_fill,co_rgb:003366,g_south_west,l_text:Arial_48_bold:${encodeURIComponent(userId)}'s%20Game%20${gameNumber},co_white,x_60,y_60/w_1200,h_630,c_fill,co_rgb:003366,g_south_east,l_text:Arial_32:PhotoStream%20Gallery,co_white,x_60,y_60/co_rgb:ffffff,o_20,g_center,l_photo,fl_layer_apply`;
-    
-    return ogImageUrl;
-  }, [userId, gameNumber]);
+    // Return API URL with photo data for server-side generation
+    return `/api/og-image?type=gallery&userId=${encodeURIComponent(userId)}&gameNumber=${encodeURIComponent(gameNumber)}`;
+  }, [userId, gameNumber, photos]);
 
   if (loading) {
     return (

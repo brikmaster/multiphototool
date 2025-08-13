@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     siteName: 'PhotoStream',
     images: [
       {
-        url: '/api/og?title=Photo%20Gallery&subtitle=Browse%20and%20share%20photos',
+        url: '/api/og-image?type=simple&title=Photo%20Gallery&subtitle=Browse%20and%20share%20photos',
         width: 1200,
         height: 630,
         alt: 'PhotoStream Gallery',
