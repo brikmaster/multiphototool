@@ -49,6 +49,18 @@ function GalleryPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>('');
   const [gameNumber, setGameNumber] = useState<string>('');
+
+  // Check for URL parameters and redirect to new structure if present
+  useEffect(() => {
+    const userIdParam = searchParams.get('userId');
+    const gameNumberParam = searchParams.get('gameNumber');
+    
+    if (userIdParam && gameNumberParam) {
+      // Redirect to new URL structure for better SEO and metadata
+      router.replace(`/gallery/${encodeURIComponent(userIdParam)}/${encodeURIComponent(gameNumberParam)}`);
+      return;
+    }
+  }, [searchParams, router]);
   const [shareUrl, setShareUrl] = useState<string>('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
