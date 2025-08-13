@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { env, isProduction } from '../../../lib/env';
+// Health check endpoint
 
 // Health check endpoint for monitoring and load balancers
 export async function GET() {
@@ -7,15 +7,14 @@ export async function GET() {
     const healthData = {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      environment: env.NODE_ENV,
+      environment: process.env.NODE_ENV,
       version: process.env.npm_package_version || '1.0.0',
       uptime: process.uptime(),
-      memory: isProduction ? undefined : process.memoryUsage(),
+      memory: process.env.NODE_ENV === 'production' ? undefined : process.memoryUsage(),
       checks: {
         environment: true,
-        cloudinary: !!env.CLOUDINARY_CLOUD_NAME,
-        redis: !!env.REDIS_URL,
-        sentry: !!env.SENTRY_DSN,
+        cloudinary: !!(process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME),
+        redis: !!process.env.REDIS_URL,
       },
     };
 

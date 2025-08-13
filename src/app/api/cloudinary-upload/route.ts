@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
-import { checkRateLimit, getClientIdentifier, createRateLimitResponse } from '../../../lib/rate-limiter';
-import { env, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } from '../../../lib/env';
+import { rateLimit } from '../../../lib/rate-limit';
 
-// Configure Cloudinary with validated environment variables
+// Configure Cloudinary
 cloudinary.config({
-  cloud_name: CLOUDINARY_CLOUD_NAME,
-  api_key: CLOUDINARY_API_KEY,
-  api_secret: CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Rate limiting configuration
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 minute
+  uniqueTokenPerInterval: 500,
 });
 
 // File size limits (in bytes)
@@ -39,12 +44,14 @@ interface CloudinaryUploadResult {
 
 export async function POST(request: NextRequest) {
   try {
-    // Enhanced rate limiting
-    const clientId = getClientIdentifier(request);
-    const rateLimitResult = await checkRateLimit(clientId);
-    
-    if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult);
+    // Rate limiting
+    try {
+      await limiter.check(request, 10, 'UPLOAD_RATE_LIMIT'); // 10 requests per minute
+    } catch {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
     }
 
     let uploadData: UploadRequest;

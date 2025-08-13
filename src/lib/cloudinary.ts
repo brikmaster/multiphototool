@@ -1,21 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { 
-  CLOUDINARY_CLOUD_NAME, 
-  CLOUDINARY_API_KEY, 
-  CLOUDINARY_API_SECRET,
-  CDN_URL,
-  isProduction 
-} from './env';
 
-// Configure Cloudinary with validated environment variables and CDN optimizations
+// Configure Cloudinary
 cloudinary.config({
-  cloud_name: CLOUDINARY_CLOUD_NAME,
-  api_key: CLOUDINARY_API_KEY,
-  api_secret: CLOUDINARY_API_SECRET,
-  // Use custom CDN domain if configured
-  private_cdn: !!CDN_URL,
-  cdn_subdomain: isProduction,
-  secure_cdn_subdomain: isProduction,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
 });
 
@@ -112,8 +101,8 @@ export interface ModernFormatOptions {
  */
 export function getCloudinaryConfig(): CloudinaryConfig {
   return {
-    cloudName: CLOUDINARY_CLOUD_NAME,
-    apiKey: CLOUDINARY_API_KEY,
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!,
+    apiKey: process.env.CLOUDINARY_API_KEY!,
     uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
   };
 }

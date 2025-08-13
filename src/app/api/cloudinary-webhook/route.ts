@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { env, CLOUDINARY_WEBHOOK_SECRET } from '../../../lib/env';
+// Webhook configuration
 
 // Webhook event types from Cloudinary
 interface CloudinaryWebhookEvent {
@@ -212,7 +212,8 @@ export async function POST(request: NextRequest) {
                      request.headers.get('x-cloudinary-signature') || '';
 
     // Verify webhook signature
-    if (CLOUDINARY_WEBHOOK_SECRET && !verifyWebhookSignature(body, signature, CLOUDINARY_WEBHOOK_SECRET)) {
+    const webhookSecret = process.env.CLOUDINARY_WEBHOOK_SECRET;
+    if (webhookSecret && !verifyWebhookSignature(body, signature, webhookSecret)) {
       console.error('Invalid webhook signature');
       return NextResponse.json(
         { error: 'Invalid signature' },
@@ -259,7 +260,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Webhook processing failed',
-        message: env.NODE_ENV === 'development' ? (error as Error).message : 'Internal server error'
+        message: process.env.NODE_ENV === 'development' ? (error as Error).message : 'Internal server error'
       },
       { status: 500 }
     );
@@ -272,6 +273,6 @@ export async function GET() {
     status: 'ok',
     service: 'cloudinary-webhook',
     timestamp: new Date().toISOString(),
-    environment: env.NODE_ENV,
+    environment: process.env.NODE_ENV,
   });
 }
