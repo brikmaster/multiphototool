@@ -68,7 +68,7 @@ function GalleryPageContent() {
   // Generate shareable URL with Open Graph meta tags
   const generateShareableUrl = useCallback((uid: string, gameNum: string, photoData: Photo[]) => {
     const baseUrl = window.location.origin;
-    const shareableUrl = `${baseUrl}/gallery?userId=${encodeURIComponent(uid)}&gameNumber=${encodeURIComponent(gameNum)}`;
+    const shareableUrl = `${baseUrl}/gallery/${encodeURIComponent(uid)}/${encodeURIComponent(gameNum)}`;
     setShareUrl(shareableUrl);
   }, []);
 

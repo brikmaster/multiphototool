@@ -179,12 +179,12 @@ function EditPageContent() {
       const userId = sessionStorage.getItem('photoStream_userId');
       const gameNumber = sessionStorage.getItem('photoStream_gameNumber');
 
-      // Navigate to gallery with photo data
-      const galleryUrl = `/gallery?photos=${encodeURIComponent(JSON.stringify(photoData))}`;
+      // Navigate to gallery with new dynamic route
       if (userId && gameNumber) {
-        router.push(`${galleryUrl}&userId=${encodeURIComponent(userId)}&gameNumber=${encodeURIComponent(gameNumber)}`);
+        router.push(`/gallery/${encodeURIComponent(userId)}/${encodeURIComponent(gameNumber)}`);
       } else {
-        router.push(galleryUrl);
+        // Fallback to main gallery page if no user/game info
+        router.push('/gallery');
       }
     } catch (error) {
       console.error('Error navigating to gallery:', error);
