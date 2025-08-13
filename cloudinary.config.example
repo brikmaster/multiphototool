@@ -1,0 +1,15 @@
+# Cloudinary Configuration
+# Copy this file to .env.local and fill in your actual values
+
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
+CLOUDINARY_API_KEY=your_api_key_here
+CLOUDINARY_API_SECRET=your_api_secret_here
+
+# Optional: Cloudinary Upload Preset (if using unsigned uploads)
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset_here
+
+# Optional: Cloudinary Folder (for organizing uploads)
+CLOUDINARY_UPLOAD_FOLDER=photo-uploads
+
+
+
