@@ -151,14 +151,20 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
 
   // Handle tag changes
   const handleTagsChange = (photoId: string, tagsString: string) => {
+    console.log('handleTagsChange called with:', { photoId, tagsString });
+    
     // Store the raw input string for better user experience
     // Only process tags when sending to API or storing
     setPhotos(prev => {
+      console.log('Previous photos state:', prev.map(p => ({ id: p.id, rawTags: p.rawTags })));
+      
       const updatedPhotos = prev.map(photo => 
         photo.id === photoId 
           ? { ...photo, rawTags: tagsString, hasChanges: true }
           : photo
       );
+      
+      console.log('Updated photos state:', updatedPhotos.map(p => ({ id: p.id, rawTags: p.rawTags })));
       
       // Notify parent component of updates after state update
       if (onPhotoUpdates) {
@@ -466,9 +472,11 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                   </label>
                   <input
                     type="text"
-                    value={photo.rawTags} // Use rawTags for input
+                    value={photo.rawTags || ''} // Add fallback to empty string
                     onChange={(e) => {
                       console.log('Tags input changed:', photo.id, e.target.value);
+                      console.log('Current photo.rawTags:', photo.rawTags);
+                      console.log('Input value:', e.target.value);
                       handleTagsChange(photo.id, e.target.value);
                     }}
                     placeholder="tag1, tag2, tag3..."
@@ -476,6 +484,9 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Separate tags with commas
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Debug: rawTags = "{photo.rawTags || 'undefined'}"
                   </p>
                 </div>
 
