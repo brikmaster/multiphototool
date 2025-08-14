@@ -169,7 +169,7 @@ export default function CloudinaryGallery({ photos: propPhotos }: { photos?: Pho
         const storedPhotos = sessionStorage.getItem('photoStream_uploadedPhotos');
         if (storedPhotos) {
           const parsedPhotos: Photo[] = JSON.parse(storedPhotos);
-          console.log('Gallery loaded photos from sessionStorage:', parsedPhotos.map(p => ({ id: p.id, tags: p.tags, filename: p.filename })));
+
           setPhotos(parsedPhotos);
         } else {
           setError('No photos found. Please upload some photos first.');

@@ -338,7 +338,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           } as Photo;
         });
         
-        console.log('Photos for callback with processed tags:', photosForCallback.map(p => ({ id: p.id, tags: p.tags, filename: p.filename })));
+
         await onPublish(photosForCallback);
         setMessage({ 
           type: 'success', 
@@ -382,7 +382,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
         };
       });
       sessionStorage.setItem('photoStream_uploadedPhotos', JSON.stringify(updatedPhotos));
-      console.log('SessionStorage updated with photos including tags:', updatedPhotos.map(p => ({ id: p.id, tags: p.tags, filename: p.filename })));
 
       if (successful.length > 0 && failed.length === 0) {
         setMessage({ 
