@@ -4,10 +4,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { Photo } from '@/types/photo';
 import { useSearchParams } from 'next/navigation';
 
-interface EditablePhoto extends Photo {
+interface EditablePhoto {
+  id: string;
+  publicId: string;
+  filename: string;
+  size: number;
+  width: number;
+  height: number;
+  url: string;
+  thumbnail: string;
   description: string;
-  tags: string[]; // Keep as string[] to maintain compatibility with Photo interface
-  rawTags: string; // Add raw tags input for better user experience
+  tags: string[];
+  rawTags: string;
   isEditing: boolean;
   hasChanges: boolean;
 }
@@ -27,8 +35,8 @@ interface CloudinaryUpdateResponse {
 }
 
 interface PhotoEditorProps {
-  onPhotoUpdates?: (photos: EditablePhoto[]) => void;
-  onPublish?: (photos: EditablePhoto[]) => Promise<void>;
+  onPhotoUpdates?: (photos: Photo[]) => void;
+  onPublish?: (photos: Photo[]) => Promise<void>;
   initialPhotos?: Photo[];
 }
 
@@ -46,10 +54,17 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
         // Use initialPhotos if provided
         if (initialPhotos && initialPhotos.length > 0) {
           const editablePhotos: EditablePhoto[] = initialPhotos.map(photo => ({
-            ...photo,
+            id: photo.id,
+            publicId: photo.publicId,
+            filename: photo.filename,
+            size: photo.size,
+            width: photo.width,
+            height: photo.height,
+            url: photo.url,
+            thumbnail: photo.thumbnail,
             description: photo.description || '',
-            tags: photo.tags || [], // Initialize with empty array for tags
-            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '', // Initialize rawTags properly
+            tags: photo.tags || [],
+            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '',
             isEditing: false,
             hasChanges: false,
           }));
@@ -63,10 +78,17 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
         if (urlPhotos) {
           const parsedPhotos: Photo[] = JSON.parse(decodeURIComponent(urlPhotos));
           const editablePhotos: EditablePhoto[] = parsedPhotos.map(photo => ({
-            ...photo,
+            id: photo.id,
+            publicId: photo.publicId,
+            filename: photo.filename,
+            size: photo.size,
+            width: photo.width,
+            height: photo.height,
+            url: photo.url,
+            thumbnail: photo.thumbnail,
             description: photo.description || '',
-            tags: photo.tags || [], // Initialize with empty array for tags
-            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '', // Initialize rawTags properly
+            tags: photo.tags || [],
+            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '',
             isEditing: false,
             hasChanges: false,
           }));
@@ -80,10 +102,17 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
         if (storedPhotos) {
           const parsedPhotos: Photo[] = JSON.parse(storedPhotos);
           const editablePhotos: EditablePhoto[] = parsedPhotos.map(photo => ({
-            ...photo,
+            id: photo.id,
+            publicId: photo.publicId,
+            filename: photo.filename,
+            size: photo.size,
+            width: photo.width,
+            height: photo.height,
+            url: photo.url,
+            thumbnail: photo.thumbnail,
             description: photo.description || '',
-            tags: photo.tags || [], // Initialize with empty array for tags
-            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '', // Initialize rawTags properly
+            tags: photo.tags || [],
+            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '',
             isEditing: false,
             hasChanges: false,
           }));
@@ -141,8 +170,23 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       
       // Notify parent component of updates after state update
       if (onPhotoUpdates) {
-        console.log('Calling onPhotoUpdates with updated photos:', updatedPhotos);
-        setTimeout(() => onPhotoUpdates(updatedPhotos), 0);
+        // Convert EditablePhoto back to Photo for compatibility
+        const photosForCallback: Photo[] = updatedPhotos.map(photo => ({
+          id: photo.id,
+          publicId: photo.publicId,
+          filename: photo.filename,
+          size: photo.size,
+          width: photo.width,
+          height: photo.height,
+          url: photo.url,
+          thumbnail: photo.thumbnail,
+          description: photo.description,
+          tags: photo.tags,
+          hasChanges: photo.hasChanges,
+        } as Photo));
+        
+        console.log('Calling onPhotoUpdates with converted photos:', photosForCallback);
+        setTimeout(() => onPhotoUpdates(photosForCallback), 0);
       }
       
       return updatedPhotos;
@@ -168,8 +212,23 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       
       // Notify parent component of updates after state update
       if (onPhotoUpdates) {
-        console.log('Calling onPhotoUpdates with updated photos:', updatedPhotos);
-        setTimeout(() => onPhotoUpdates(updatedPhotos), 0);
+        // Convert EditablePhoto back to Photo for compatibility
+        const photosForCallback: Photo[] = updatedPhotos.map(photo => ({
+          id: photo.id,
+          publicId: photo.publicId,
+          filename: photo.filename,
+          size: photo.size,
+          width: photo.width,
+          height: photo.height,
+          url: photo.url,
+          thumbnail: photo.thumbnail,
+          description: photo.description,
+          tags: photo.tags,
+          hasChanges: photo.hasChanges,
+        } as Photo));
+        
+        console.log('Calling onPhotoUpdates with converted photos:', photosForCallback);
+        setTimeout(() => onPhotoUpdates(photosForCallback), 0);
       }
       
       return updatedPhotos;
@@ -250,7 +309,21 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       // If onPublish prop is provided, use it
       if (onPublish) {
         console.log('Calling onPublish callback with photos:', photos);
-        await onPublish(photos);
+        // Convert EditablePhoto to Photo for compatibility
+        const photosForCallback: Photo[] = photos.map(photo => ({
+          id: photo.id,
+          publicId: photo.publicId,
+          filename: photo.filename,
+          size: photo.size,
+          width: photo.width,
+          height: photo.height,
+          url: photo.url,
+          thumbnail: photo.thumbnail,
+          description: photo.description,
+          tags: photo.tags,
+          hasChanges: photo.hasChanges,
+        } as Photo));
+        await onPublish(photosForCallback);
         setMessage({ 
           type: 'success', 
           text: `Successfully published ${photosWithChanges.length} photo${photosWithChanges.length > 1 ? 's' : ''}` 
