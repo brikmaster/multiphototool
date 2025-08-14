@@ -46,6 +46,9 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
   const [isLoading, setIsLoading] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  
+  // Simple test state for tags input
+  const [testTagsValue, setTestTagsValue] = useState<string>('');
 
   // Load photos from initialPhotos prop, sessionStorage, or URL params
   useEffect(() => {
@@ -536,6 +539,26 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1b95e5] focus:border-transparent resize-none"
                     rows={2}
                   />
+                </div>
+
+                {/* TEST Tags Input - Simple Version */}
+                <div>
+                  <label className="block text-sm font-medium text-red-700 mb-2">
+                    TEST Tags Input (Simple)
+                  </label>
+                  <input
+                    type="text"
+                    value={testTagsValue}
+                    onChange={(e) => {
+                      console.log('TEST Tags input changed:', e.target.value);
+                      setTestTagsValue(e.target.value);
+                    }}
+                    placeholder="Type here to test basic input..."
+                    className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-red-500 mt-1">
+                    TEST: Value = {testTagsValue}
+                  </p>
                 </div>
 
                 {/* Tags Input */}
