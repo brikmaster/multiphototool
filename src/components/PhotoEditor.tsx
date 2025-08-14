@@ -15,7 +15,6 @@ interface EditablePhoto {
   thumbnail: string;
   description: string;
   tags: string[];
-  rawTags: string;
   isEditing: boolean;
   hasChanges: boolean;
 }
@@ -47,9 +46,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
   const [isPublishing, setIsPublishing] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
-  // Simple test state for tags input
-  const [testTagsValue, setTestTagsValue] = useState<string>('');
-  
   // Simple tags state - one string per photo ID
   const [simpleTags, setSimpleTags] = useState<Record<string, string>>({});
 
@@ -70,7 +66,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             thumbnail: photo.thumbnail,
             description: photo.description || '',
             tags: photo.tags || [],
-            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '',
             isEditing: false,
             hasChanges: false,
           }));
@@ -94,7 +89,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             thumbnail: photo.thumbnail,
             description: photo.description || '',
             tags: photo.tags || [],
-            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '',
             isEditing: false,
             hasChanges: false,
           }));
@@ -118,7 +112,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             thumbnail: photo.thumbnail,
             description: photo.description || '',
             tags: photo.tags || [],
-            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '',
             isEditing: false,
             hasChanges: false,
           }));
@@ -140,11 +133,11 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       id: p.id, 
       hasChanges: p.hasChanges, 
       description: p.description, 
-      tags: p.tags,
-      rawTags: p.rawTags
+      tags: p.tags
     })));
+    console.log('Simple tags state:', simpleTags);
     console.log('Photos with changes:', photos.filter(p => p.hasChanges).length);
-  }, [photos]);
+  }, [photos, simpleTags]);
 
   // Generate optimized Cloudinary URLs
   const getOptimizedUrl = useCallback((publicId: string, transformation?: string) => {
@@ -199,26 +192,28 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
     });
   };
 
-  // Handle tag changes
-  const handleTagsChange = (photoId: string, tagsString: string) => {
-    console.log('handleTagsChange called with:', { photoId, tagsString });
+
+
+  // Handle tag changes and mark photo as changed
+  const handleTagsChange = (photoId: string, value: string) => {
+    console.log('Tags input changed:', photoId, value);
     
-    // Store the raw input string for better user experience
-    // Only process tags when sending to API or storing
+    // Update simple tags state
+    setSimpleTags(prev => ({
+      ...prev,
+      [photoId]: value
+    }));
+    
+    // Mark photo as having changes
     setPhotos(prev => {
-      console.log('Previous photos state:', prev.map(p => ({ id: p.id, rawTags: p.rawTags })));
-      
       const updatedPhotos = prev.map(photo => 
         photo.id === photoId 
-          ? { ...photo, rawTags: tagsString, hasChanges: true }
+          ? { ...photo, hasChanges: true }
           : photo
       );
       
-      console.log('Updated photos state:', updatedPhotos.map(p => ({ id: p.id, rawTags: p.rawTags })));
-      
-      // Notify parent component of updates after state update
+      // Notify parent component of updates
       if (onPhotoUpdates) {
-        // Convert EditablePhoto back to Photo for compatibility
         const photosForCallback: Photo[] = updatedPhotos.map(photo => ({
           id: photo.id,
           publicId: photo.publicId,
@@ -233,20 +228,11 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           hasChanges: photo.hasChanges,
         } as Photo));
         
-        console.log('Calling onPhotoUpdates with converted photos:', photosForCallback);
         setTimeout(() => onPhotoUpdates(photosForCallback), 0);
       }
       
       return updatedPhotos;
     });
-  };
-
-  // Process raw tags string into array when needed
-  const processRawTags = (rawTags: string): string[] => {
-    return rawTags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
   };
 
   // Toggle editing mode for a photo
@@ -261,8 +247,12 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
   // Update Cloudinary metadata for a single photo
   const updatePhotoMetadata = async (photo: EditablePhoto): Promise<CloudinaryUpdateResponse> => {
     try {
-      // Process raw tags into array for API
-      const processedTags = processRawTags(photo.rawTags);
+      // Process simple tags into array for API
+      const tagsString = simpleTags[photo.id] || '';
+      const processedTags = tagsString
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
       
       const response = await fetch('/api/cloudinary-update', {
         method: 'POST',
@@ -358,11 +348,19 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       });
 
       // Update sessionStorage with new data
-      const updatedPhotos = photos.map(photo => ({
-        ...photo,
-        description: photo.description,
-        tags: processRawTags(photo.rawTags), // Process raw tags before storing
-      }));
+      const updatedPhotos = photos.map(photo => {
+        const tagsString = simpleTags[photo.id] || '';
+        const processedTags = tagsString
+          .split(',')
+          .map(tag => tag.trim())
+          .filter(tag => tag.length > 0);
+        
+        return {
+          ...photo,
+          description: photo.description,
+          tags: processedTags, // Process simple tags before storing
+        };
+      });
       sessionStorage.setItem('photoStream_uploadedPhotos', JSON.stringify(updatedPhotos));
 
       if (successful.length > 0 && failed.length === 0) {
@@ -445,26 +443,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           </p>
         </div>
 
-        {/* GLOBAL TEST Input - Always Visible */}
-        <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4 mb-8">
-          <h3 className="text-lg font-bold text-red-700 mb-2">GLOBAL TEST INPUT</h3>
-          <input
-            type="text"
-            value={testTagsValue}
-            onChange={(e) => {
-              console.log('GLOBAL TEST input changed:', e.target.value);
-              setTestTagsValue(e.target.value);
-            }}
-            placeholder="Type here to test basic input functionality..."
-            className="w-full px-3 py-2 border-2 border-red-500 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
-          <p className="text-red-700 mt-2">
-            TEST Value: {testTagsValue} | Length: {testTagsValue.length}
-          </p>
-          <p className="text-red-600 text-sm mt-1">
-            This field should ALWAYS work. If it does not work, there is a fundamental issue.
-          </p>
-        </div>
+
 
         {/* Message Display */}
         {message && (
@@ -571,49 +550,20 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                   />
                 </div>
 
-                {/* TEST Tags Input - Simple Version */}
-                <div>
-                  <label className="block text-sm font-medium text-red-700 mb-2">
-                    TEST Tags Input (Simple)
-                  </label>
-                  <input
-                    type="text"
-                    value={testTagsValue}
-                    onChange={(e) => {
-                      console.log('TEST Tags input changed:', e.target.value);
-                      setTestTagsValue(e.target.value);
-                    }}
-                    placeholder="Type here to test basic input..."
-                    className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                  <p className="text-xs text-red-500 mt-1">
-                    TEST: Value = {testTagsValue}
-                  </p>
-                </div>
-
-                {/* SIMPLE Tags Input - Works like red test box */}
+                {/* Tags Input */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags (Simple Version)
+                    Tags
                   </label>
                   <input
                     type="text"
                     value={simpleTags[photo.id] || ''}
-                    onChange={(e) => {
-                      console.log('SIMPLE Tags input changed:', photo.id, e.target.value);
-                      setSimpleTags(prev => ({
-                        ...prev,
-                        [photo.id]: e.target.value
-                      }));
-                    }}
+                    onChange={(e) => handleTagsChange(photo.id, e.target.value)}
                     placeholder="tag1, tag2, tag3..."
-                    className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1b95e5] focus:border-transparent"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Separate tags with commas
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    SIMPLE Value: {simpleTags[photo.id] || 'empty'}
                   </p>
                 </div>
 
