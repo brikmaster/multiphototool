@@ -456,10 +456,10 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             className="w-full px-3 py-2 border-2 border-red-500 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
           />
           <p className="text-red-700 mt-2">
-            TEST Value: "{testTagsValue}" | Length: {testTagsValue.length}
+            TEST Value: {testTagsValue} | Length: {testTagsValue.length}
           </p>
           <p className="text-red-600 text-sm mt-1">
-            This field should ALWAYS work. If it doesn't, there's a fundamental issue.
+            This field should ALWAYS work. If it does not work, there is a fundamental issue.
           </p>
         </div>
 
