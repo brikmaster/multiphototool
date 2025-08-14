@@ -397,6 +397,9 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
     }
   }, [message]);
 
+  console.log('PhotoEditor render - photos.length:', photos.length);
+  console.log('PhotoEditor render - photos:', photos);
+
   if (photos.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -410,6 +413,9 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             <h2 className="text-2xl font-bold text-gray-900 mb-4">No Photos to Edit</h2>
             <p className="text-gray-600 mb-6">
               Upload some photos first to start editing and organizing them.
+            </p>
+            <p className="text-red-600 mb-6 text-sm">
+              DEBUG: Photos array is empty. Check console for loading details.
             </p>
             <button
               onClick={() => window.history.back()}
@@ -433,6 +439,27 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           </h1>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
             Edit descriptions, add tags, and organize your photos before publishing to Cloudinary.
+          </p>
+        </div>
+
+        {/* GLOBAL TEST Input - Always Visible */}
+        <div className="bg-red-100 border-2 border-red-500 rounded-lg p-4 mb-8">
+          <h3 className="text-lg font-bold text-red-700 mb-2">GLOBAL TEST INPUT</h3>
+          <input
+            type="text"
+            value={testTagsValue}
+            onChange={(e) => {
+              console.log('GLOBAL TEST input changed:', e.target.value);
+              setTestTagsValue(e.target.value);
+            }}
+            placeholder="Type here to test basic input functionality..."
+            className="w-full px-3 py-2 border-2 border-red-500 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          />
+          <p className="text-red-700 mt-2">
+            TEST Value: "{testTagsValue}" | Length: {testTagsValue.length}
+          </p>
+          <p className="text-red-600 text-sm mt-1">
+            This field should ALWAYS work. If it doesn't, there's a fundamental issue.
           </p>
         </div>
 
