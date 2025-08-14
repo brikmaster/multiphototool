@@ -49,7 +49,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             ...photo,
             description: photo.description || '',
             tags: photo.tags || [], // Initialize with empty array for tags
-            rawTags: photo.tags.join(','), // Initialize rawTags
+            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '', // Initialize rawTags properly
             isEditing: false,
             hasChanges: false,
           }));
@@ -66,7 +66,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             ...photo,
             description: photo.description || '',
             tags: photo.tags || [], // Initialize with empty array for tags
-            rawTags: photo.tags.join(','), // Initialize rawTags
+            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '', // Initialize rawTags properly
             isEditing: false,
             hasChanges: false,
           }));
@@ -83,7 +83,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             ...photo,
             description: photo.description || '',
             tags: photo.tags || [], // Initialize with empty array for tags
-            rawTags: photo.tags.join(','), // Initialize rawTags
+            rawTags: (photo.tags && photo.tags.length > 0) ? photo.tags.join(', ') : '', // Initialize rawTags properly
             isEditing: false,
             hasChanges: false,
           }));
@@ -105,7 +105,8 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       id: p.id, 
       hasChanges: p.hasChanges, 
       description: p.description, 
-      tags: p.tags 
+      tags: p.tags,
+      rawTags: p.rawTags
     })));
     console.log('Photos with changes:', photos.filter(p => p.hasChanges).length);
   }, [photos]);
