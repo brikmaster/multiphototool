@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 
 interface EditablePhoto extends Photo {
   description: string;
-  tags: string[];
+  tags: string[]; // Keep as string[] to maintain compatibility with Photo interface
   isEditing: boolean;
   hasChanges: boolean;
 }
@@ -47,7 +47,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           const editablePhotos: EditablePhoto[] = initialPhotos.map(photo => ({
             ...photo,
             description: photo.description || '',
-            tags: [], // Initialize with empty tags instead of photo.tags
+            tags: photo.tags || [], // Initialize with empty array for tags
             isEditing: false,
             hasChanges: false,
           }));
@@ -63,7 +63,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           const editablePhotos: EditablePhoto[] = parsedPhotos.map(photo => ({
             ...photo,
             description: photo.description || '',
-            tags: [], // Initialize with empty tags instead of photo.tags
+            tags: photo.tags || [], // Initialize with empty array for tags
             isEditing: false,
             hasChanges: false,
           }));
@@ -79,7 +79,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           const editablePhotos: EditablePhoto[] = parsedPhotos.map(photo => ({
             ...photo,
             description: photo.description || '',
-            tags: [], // Initialize with empty tags instead of photo.tags
+            tags: photo.tags || [], // Initialize with empty array for tags
             isEditing: false,
             hasChanges: false,
           }));
@@ -146,12 +146,16 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
 
   // Handle tag changes
   const handleTagsChange = (photoId: string, tagsString: string) => {
-    // Don't split immediately - let user type commas naturally
-    // Only process tags when they're actually submitted or when editing is complete
+    // Split by commas, trim whitespace, and filter out empty tags
+    const tags = tagsString
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
+    
     setPhotos(prev => {
       const updatedPhotos = prev.map(photo => 
         photo.id === photoId 
-          ? { ...photo, tags: [tagsString], hasChanges: true } // Store as single string for now
+          ? { ...photo, tags, hasChanges: true }
           : photo
       );
       
@@ -163,14 +167,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       
       return updatedPhotos;
     });
-  };
-
-  // Process tags when editing is complete or when publishing
-  const processTags = (tagsString: string): string[] => {
-    return tagsString
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
   };
 
   // Toggle editing mode for a photo
@@ -185,9 +181,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
   // Update Cloudinary metadata for a single photo
   const updatePhotoMetadata = async (photo: EditablePhoto): Promise<CloudinaryUpdateResponse> => {
     try {
-      // Process tags before sending to API
-      const processedTags = processTags(photo.tags[0] || '');
-      
       const response = await fetch('/api/cloudinary-update', {
         method: 'POST',
         headers: {
@@ -195,7 +188,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
         },
         body: JSON.stringify({
           publicId: photo.publicId,
-          tags: processedTags,
+          tags: photo.tags, // Send tags array directly
           description: photo.description,
         }),
       });
@@ -271,7 +264,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       const updatedPhotos = photos.map(photo => ({
         ...photo,
         description: photo.description,
-        tags: processTags(photo.tags[0] || ''), // Process tags before storing
+        tags: photo.tags, // Store as string[]
       }));
       sessionStorage.setItem('photoStream_uploadedPhotos', JSON.stringify(updatedPhotos));
 
@@ -461,7 +454,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                   </label>
                   <input
                     type="text"
-                    value={photo.tags[0] || ''}
+                    value={photo.tags.join(',')} // Join array back into string for input
                     onChange={(e) => {
                       console.log('Tags input changed:', photo.id, e.target.value);
                       handleTagsChange(photo.id, e.target.value);
