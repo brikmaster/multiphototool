@@ -6,14 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
-    "type-check": "tsc --noEmit",
-    "test": "npm run type-check && npm run lint",
-    "build:production": "NODE_ENV=production npm run build",
-    "analyze": "ANALYZE=true npm run build",
-    "clean": "rm -rf .next out",
-    "postinstall": "npm run type-check"
+    "lint": "next lint"
   },
   "dependencies": {
     "axios": "^1.11.0",

@@ -245,3 +245,4 @@ function generateFallbackGalleryOGImage(userId: string, gameNumber: string): str
   const subtitle = 'Photo Gallery';
   return generateFallbackOGImageWithText(title, subtitle);
 }
+

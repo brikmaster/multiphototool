@@ -50,15 +50,15 @@ export default function CloudinaryUploader({ userId, gameNumber, onUploadComplet
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'photo-upload-preset');
       formData.append('folder', `photos/${userId}/${gameNumber}`);
       
-      // Add basic tags for organization
-      const tags = [`user:${userId}`, `game:${gameNumber}`, 'bulk-upload'];
-      formData.append('tags', tags.join(','));
+      // Don't add automatic tags - let users add their own tags in the editor
+      // const tags = [`user:${userId}`, `game:${gameNumber}`, 'bulk-upload'];
+      // formData.append('tags', tags.join(','));
 
       // Debug: Log the upload parameters
       console.log('Upload parameters:', {
         upload_preset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'photo-upload-preset',
         folder: `photos/${userId}/${gameNumber}`,
-        tags: tags.join(','),
+        tags: 'none', // No automatic tags
         cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
       });
 

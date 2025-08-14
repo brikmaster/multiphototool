@@ -47,7 +47,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           const editablePhotos: EditablePhoto[] = initialPhotos.map(photo => ({
             ...photo,
             description: photo.description || '',
-            tags: photo.tags || [],
+            tags: [], // Initialize with empty tags instead of photo.tags
             isEditing: false,
             hasChanges: false,
           }));
@@ -63,7 +63,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           const editablePhotos: EditablePhoto[] = parsedPhotos.map(photo => ({
             ...photo,
             description: photo.description || '',
-            tags: photo.tags || [],
+            tags: [], // Initialize with empty tags instead of photo.tags
             isEditing: false,
             hasChanges: false,
           }));
@@ -79,7 +79,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           const editablePhotos: EditablePhoto[] = parsedPhotos.map(photo => ({
             ...photo,
             description: photo.description || '',
-            tags: photo.tags || [],
+            tags: [], // Initialize with empty tags instead of photo.tags
             isEditing: false,
             hasChanges: false,
           }));
@@ -93,7 +93,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
     };
 
     loadPhotos();
-  }, [searchParams]); // Removed initialPhotos dependency
+  }, [searchParams, initialPhotos]); // Added initialPhotos back to dependencies
 
   // Debug: Log photos state changes
   useEffect(() => {
@@ -146,11 +146,12 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
 
   // Handle tag changes
   const handleTagsChange = (photoId: string, tagsString: string) => {
-    const tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    // Don't split immediately - let user type commas naturally
+    // Only process tags when they're actually submitted or when editing is complete
     setPhotos(prev => {
       const updatedPhotos = prev.map(photo => 
         photo.id === photoId 
-          ? { ...photo, tags, hasChanges: true }
+          ? { ...photo, tags: [tagsString], hasChanges: true } // Store as single string for now
           : photo
       );
       
@@ -162,6 +163,14 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       
       return updatedPhotos;
     });
+  };
+
+  // Process tags when editing is complete or when publishing
+  const processTags = (tagsString: string): string[] => {
+    return tagsString
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
   };
 
   // Toggle editing mode for a photo
@@ -176,6 +185,9 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
   // Update Cloudinary metadata for a single photo
   const updatePhotoMetadata = async (photo: EditablePhoto): Promise<CloudinaryUpdateResponse> => {
     try {
+      // Process tags before sending to API
+      const processedTags = processTags(photo.tags[0] || '');
+      
       const response = await fetch('/api/cloudinary-update', {
         method: 'POST',
         headers: {
@@ -183,7 +195,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
         },
         body: JSON.stringify({
           publicId: photo.publicId,
-          tags: photo.tags,
+          tags: processedTags,
           description: photo.description,
         }),
       });
@@ -259,7 +271,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       const updatedPhotos = photos.map(photo => ({
         ...photo,
         description: photo.description,
-        tags: photo.tags,
+        tags: processTags(photo.tags[0] || ''), // Process tags before storing
       }));
       sessionStorage.setItem('photoStream_uploadedPhotos', JSON.stringify(updatedPhotos));
 
@@ -449,7 +461,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                   </label>
                   <input
                     type="text"
-                    value={photo.tags.join(', ')}
+                    value={photo.tags[0] || ''}
                     onChange={(e) => {
                       console.log('Tags input changed:', photo.id, e.target.value);
                       handleTagsChange(photo.id, e.target.value);

@@ -129,13 +129,13 @@ export async function POST(request: NextRequest) {
     // Generate folder path
     const folderPath = `photos/${uploadData.userId}/${uploadData.gameNumber}`;
     
-    // Generate automatic tags
-    const autoTags = [
-      `user:${uploadData.userId}`,
-      `game:${uploadData.gameNumber}`,
-      `uploaded:${new Date().toISOString().split('T')[0]}`,
-    ];
-    const allTags = [...autoTags, ...(uploadData.tags || [])];
+    // Don't generate automatic tags - let users add their own tags
+    // const autoTags = [
+    //   `user:${uploadData.userId}`,
+    //   `game:${uploadData.gameNumber}`,
+    //   `uploaded:${new Date().toISOString().split('T')[0]}`,
+    // ];
+    const allTags = uploadData.tags || []; // Only use user-provided tags
 
     const uploadPromises: Promise<CloudinaryUploadResult>[] = [];
 
