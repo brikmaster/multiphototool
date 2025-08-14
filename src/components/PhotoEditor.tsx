@@ -292,7 +292,17 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       return;
     }
 
-    const photosWithChanges = photos.filter(photo => photo.hasChanges);
+    // Check for changes in both hasChanges flag and simpleTags
+    const photosWithChanges = photos.filter(photo => 
+      photo.hasChanges || (simpleTags[photo.id] && simpleTags[photo.id].trim() !== '')
+    );
+    
+    console.log('Photos with changes (including tags):', photosWithChanges.map(p => ({ 
+      id: p.id, 
+      hasChanges: p.hasChanges, 
+      tags: simpleTags[p.id] || 'none'
+    })));
+    
     if (photosWithChanges.length === 0) {
       setMessage({ type: 'success', text: 'No changes to publish' });
       return;
@@ -485,7 +495,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
           </div>
           <button
             onClick={handlePublish}
-            disabled={isPublishing || !photos.some(photo => photo.hasChanges)}
+            disabled={isPublishing || (!photos.some(photo => photo.hasChanges) && Object.keys(simpleTags).filter(id => simpleTags[id]).length === 0)}
             className="px-8 py-4 bg-[#1b95e5] text-white font-semibold rounded-lg hover:bg-[#1580c7] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
           >
             {isPublishing ? (
@@ -504,6 +514,19 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                 Publish Changes
               </>
             )}
+          </button>
+          
+          {/* TEST: Always-enabled publish button */}
+          <button
+            onClick={() => {
+              console.log('TEST: Force publish clicked');
+              console.log('Current simpleTags:', simpleTags);
+              console.log('Current photos hasChanges:', photos.map(p => ({ id: p.id, hasChanges: p.hasChanges })));
+              handlePublish();
+            }}
+            className="ml-4 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all duration-200"
+          >
+            TEST: Force Publish
           </button>
         </div>
 
