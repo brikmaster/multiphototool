@@ -486,7 +486,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                     Separate tags with commas
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Debug: rawTags = "{photo.rawTags || 'undefined'}"
+                    Debug: rawTags = {photo.rawTags || 'undefined'}
                   </p>
                 </div>
 
