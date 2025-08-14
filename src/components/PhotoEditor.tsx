@@ -372,6 +372,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
         };
       });
       sessionStorage.setItem('photoStream_uploadedPhotos', JSON.stringify(updatedPhotos));
+      console.log('SessionStorage updated with photos including tags:', updatedPhotos.map(p => ({ id: p.id, tags: p.tags, filename: p.filename })));
 
       if (successful.length > 0 && failed.length === 0) {
         setMessage({ 
