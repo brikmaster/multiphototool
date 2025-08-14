@@ -408,8 +408,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
     }
   }, [message]);
 
-  console.log('PhotoEditor render - photos.length:', photos.length);
-  console.log('PhotoEditor render - photos:', photos);
+
 
   if (photos.length === 0) {
     return (
@@ -425,9 +424,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             <p className="text-gray-600 mb-6">
               Upload some photos first to start editing and organizing them.
             </p>
-            <p className="text-red-600 mb-6 text-sm">
-              DEBUG: Photos array is empty. Check console for loading details.
-            </p>
+
             <button
               onClick={() => window.history.back()}
               className="px-6 py-3 bg-[#1b95e5] text-white rounded-lg hover:bg-[#1580c7] transition-colors"
@@ -486,12 +483,7 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             <p className="text-xs text-gray-500">
               Button disabled: {isPublishing || !photos.some(photo => photo.hasChanges) ? 'Yes' : 'No'}
             </p>
-            <p className="text-xs text-blue-600">
-              DEBUG: Photos with hasChanges: {photos.filter(p => p.hasChanges).map(p => p.id).join(', ') || 'none'}
-            </p>
-            <p className="text-xs text-purple-600">
-              DEBUG: SimpleTags: {Object.keys(simpleTags).filter(id => simpleTags[id]).length} tags set
-            </p>
+
           </div>
           <button
             onClick={handlePublish}
@@ -514,19 +506,6 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                 Publish Changes
               </>
             )}
-          </button>
-          
-          {/* TEST: Always-enabled publish button */}
-          <button
-            onClick={() => {
-              console.log('TEST: Force publish clicked');
-              console.log('Current simpleTags:', simpleTags);
-              console.log('Current photos hasChanges:', photos.map(p => ({ id: p.id, hasChanges: p.hasChanges })));
-              handlePublish();
-            }}
-            className="ml-4 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all duration-200"
-          >
-            TEST: Force Publish
           </button>
         </div>
 
