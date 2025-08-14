@@ -116,13 +116,14 @@ function EditPageContent() {
   const handlePublish = useCallback(async (updatedPhotos: Photo[]) => {
     try {
       console.log('handlePublish called with photos:', updatedPhotos);
+      console.log('Photos with tags:', updatedPhotos.map(p => ({ id: p.id, tags: p.tags, filename: p.filename })));
       
-      // Filter photos that have unsaved changes
+      // Filter photos that have unsaved changes OR have tags
       const photosWithChanges = updatedPhotos.filter(photo => 
-        (photo as any).hasChanges === true
+        (photo as any).hasChanges === true || (photo.tags && photo.tags.length > 0)
       );
       
-      console.log('Photos with changes:', photosWithChanges);
+      console.log('Photos with changes (including tags):', photosWithChanges.map(p => ({ id: p.id, tags: p.tags, filename: p.filename })));
 
       if (photosWithChanges.length === 0) {
         console.log('No changes to publish, navigating to gallery');

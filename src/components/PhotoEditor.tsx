@@ -315,20 +315,30 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
       // If onPublish prop is provided, use it
       if (onPublish) {
         console.log('Calling onPublish callback with photos:', photos);
-        // Convert EditablePhoto to Photo for compatibility
-        const photosForCallback: Photo[] = photos.map(photo => ({
-          id: photo.id,
-          publicId: photo.publicId,
-          filename: photo.filename,
-          size: photo.size,
-          width: photo.width,
-          height: photo.height,
-          url: photo.url,
-          thumbnail: photo.thumbnail,
-          description: photo.description,
-          tags: photo.tags,
-          hasChanges: photo.hasChanges,
-        } as Photo));
+        // Convert EditablePhoto to Photo for compatibility, including processed tags
+        const photosForCallback: Photo[] = photos.map(photo => {
+          const tagsString = simpleTags[photo.id] || '';
+          const processedTags = tagsString
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0);
+          
+          return {
+            id: photo.id,
+            publicId: photo.publicId,
+            filename: photo.filename,
+            size: photo.size,
+            width: photo.width,
+            height: photo.height,
+            url: photo.url,
+            thumbnail: photo.thumbnail,
+            description: photo.description,
+            tags: processedTags, // Use processed tags from simpleTags
+            hasChanges: photo.hasChanges,
+          } as Photo;
+        });
+        
+        console.log('Photos for callback with processed tags:', photosForCallback.map(p => ({ id: p.id, tags: p.tags, filename: p.filename })));
         await onPublish(photosForCallback);
         setMessage({ 
           type: 'success', 
