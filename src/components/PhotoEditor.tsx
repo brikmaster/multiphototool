@@ -476,6 +476,12 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
             <p className="text-xs text-gray-500">
               Button disabled: {isPublishing || !photos.some(photo => photo.hasChanges) ? 'Yes' : 'No'}
             </p>
+            <p className="text-xs text-blue-600">
+              DEBUG: Photos with hasChanges: {photos.filter(p => p.hasChanges).map(p => p.id).join(', ') || 'none'}
+            </p>
+            <p className="text-xs text-purple-600">
+              DEBUG: SimpleTags: {Object.keys(simpleTags).filter(id => simpleTags[id]).length} tags set
+            </p>
           </div>
           <button
             onClick={handlePublish}
