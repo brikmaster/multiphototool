@@ -49,6 +49,9 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
   
   // Simple test state for tags input
   const [testTagsValue, setTestTagsValue] = useState<string>('');
+  
+  // Simple tags state - one string per photo ID
+  const [simpleTags, setSimpleTags] = useState<Record<string, string>>({});
 
   // Load photos from initialPhotos prop, sessionStorage, or URL params
   useEffect(() => {
@@ -588,28 +591,29 @@ export default function PhotoEditor({ onPhotoUpdates, onPublish, initialPhotos }
                   </p>
                 </div>
 
-                {/* Tags Input */}
+                {/* SIMPLE Tags Input - Works like red test box */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags
+                    Tags (Simple Version)
                   </label>
                   <input
                     type="text"
-                    value={photo.rawTags || ''} // Add fallback to empty string
+                    value={simpleTags[photo.id] || ''}
                     onChange={(e) => {
-                      console.log('Tags input changed:', photo.id, e.target.value);
-                      console.log('Current photo.rawTags:', photo.rawTags);
-                      console.log('Input value:', e.target.value);
-                      handleTagsChange(photo.id, e.target.value);
+                      console.log('SIMPLE Tags input changed:', photo.id, e.target.value);
+                      setSimpleTags(prev => ({
+                        ...prev,
+                        [photo.id]: e.target.value
+                      }));
                     }}
                     placeholder="tag1, tag2, tag3..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1b95e5] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Separate tags with commas
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Debug: rawTags = {photo.rawTags || 'undefined'}
+                  <p className="text-xs text-green-600 mt-1">
+                    SIMPLE Value: {simpleTags[photo.id] || 'empty'}
                   </p>
                 </div>
 
